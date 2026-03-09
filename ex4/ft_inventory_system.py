@@ -1,7 +1,7 @@
 import sys
 
 
-def parse_inventory(arguments):
+def parse_inventory(arguments: list) -> dict:
     dictionary = dict()
     for element in arguments:
         temp_tab = element.split(':')
@@ -9,20 +9,20 @@ def parse_inventory(arguments):
     return dictionary
 
 
-def count_total_items(dictionary):
+def count_total_items(dictionary) -> int:
     total_items = 0
     for element in dictionary.values():
         total_items += element
     return total_items
 
 
-def print_summary(dictionary, total_items):
+def print_summary(dictionary, total_items) -> None:
     print(f'Total items in inventory:   {total_items}')
     different_items = len(dictionary.keys())
     print(f'Unique item types:  {different_items}\n')
 
 
-def print_inventory(dictionary, total_items):
+def print_inventory(dictionary, total_items) -> None:
     print("=== Current inventory ===")
     for element in sorted(dictionary, key=dictionary.get, reverse=True):
         value = dictionary[element]
@@ -34,13 +34,13 @@ def print_inventory(dictionary, total_items):
             print(f'{element}: {dictionary[element]} units ({percentage}%)')
 
 
-def print_statistics(dictionary):
+def print_statistics(dictionary) -> None:
     print("\n=== Inventory Statistics ===")
     most = max(dictionary, key=dictionary.get)
     least = min(dictionary, key=dictionary.get)
 
     if dictionary[most] > 1:
-        most_unit = "units" 
+        most_unit = "units"
     else:
         most_unit = "unit"
 
@@ -49,20 +49,41 @@ def print_statistics(dictionary):
     else:
         least_unit = "unit"
 
-    print(f"Most abundant: {most} ({dictionary[most]} units)")
-    print(f"Least abundant: {least} ({dictionary[least]} units)")
+    print(f"Most abundant: {most} ({dictionary[most]} {most_unit})")
+    print(f"Least abundant: {least} ({dictionary[least]} {least_unit})")
 
-## A CONTINUER
-def items_categories(dictionary):
-    print("=== Item Categories ===")
+
+def items_categories(dictionary) -> None:
+    print("\n=== Item Categories ===")
     scarce_elements = dict()
     moderate_elements = dict()
     for element in sorted(dictionary, key=dictionary.get, reverse=True):
         if dictionary[element] <= 3:
-            scarce_elements[] 
+            scarce_elements[element] = dictionary[element]
         else:
-            moderate_elements.append(dictionary[element])
+            moderate_elements[element] = dictionary[element]
 
+    print(f"Moderate: {moderate_elements}")
+    print(f"Scarce: {scarce_elements}")
+
+
+def management_suggestions(dictionary) -> None:
+    print("\n=== Management Suggestions ===")
+    restock = dict()
+    for element in sorted(dictionary, key=dictionary.get, reverse=True):
+        if dictionary[element] == 1:
+            restock[element] = dictionary[element]
+
+    if len(restock) > 0:
+        print(f'• Restock needed: {restock}')
+    else:
+        print('No restock needed')
+
+
+def check_elements(dictionary, entry) -> str:
+    for element in sorted(dictionary, key=dictionary.get, reverse=True):
+        if element == entry:
+            return True
 
 
 if __name__ == "__main__":
@@ -70,8 +91,15 @@ if __name__ == "__main__":
 
     dictionary = parse_inventory(sys.argv[1:])
     total_items = count_total_items(dictionary)
+    entry = 'sword'
 
     print_summary(dictionary, total_items)
     print_inventory(dictionary, total_items)
     print_statistics(dictionary)
     items_categories(dictionary)
+    management_suggestions(dictionary)
+    print("\n=== Dictionary Properties Demo ===")
+    print(f'Dictionary keys: {list(dictionary.keys())}')
+    print(f'Dictionary values: {list(dictionary.values())}')
+    print(f"Sample lookup - '{entry}' in inventory:\
+ {check_elements(dictionary, entry)}")
