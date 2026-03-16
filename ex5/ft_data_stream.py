@@ -1,3 +1,6 @@
+import time
+
+
 events = [
     {'id': 1, 'player': 'frank', 'event_type': 'login', 'timestamp': '2024-01-01T23:17', 'data': {'level': 16, 'score_delta': 128, 'zone': 'pixel_zone_2'}},
     {'id': 2, 'player': 'frank', 'event_type': 'login', 'timestamp': '2024-01-22T23:57', 'data': {'level': 35, 'score_delta': -11, 'zone': 'pixel_zone_5'}},
@@ -8,10 +11,10 @@ events = [
     {'id': 7, 'player': 'diana', 'event_type': 'login', 'timestamp': '2024-01-12T11:38', 'data': {'level': 17, 'score_delta': -56, 'zone': 'pixel_zone_4'}},
     {'id': 8, 'player': 'eve', 'event_type': 'login', 'timestamp': '2024-01-30T12:05', 'data': {'level': 36, 'score_delta': 200, 'zone': 'pixel_zone_5'}},
     {'id': 9, 'player': 'charlie', 'event_type': 'level_up', 'timestamp': '2024-01-07T22:04', 'data': {'level': 3, 'score_delta': 133, 'zone': 'pixel_zone_3'}},
-    {'id': 10, 'player': 'alice', 'event_type': 'logout', 'timestamp': '2024-01-28T03:24', 'data': {'level': 18, 'score_delta': 364, 'zone': 'pixel_zone_3'}},
-    {'id': 11, 'player': 'bob', 'event_type': 'kill', 'timestamp': '2024-01-12T06:42', 'data': {'level': 18, 'score_delta': -27, 'zone': 'pixel_zone_5'}},
+    {'id': 10, 'player': 'alice', 'event_type': 'kill', 'timestamp': '2024-01-28T03:24', 'data': {'level': 5, 'score_delta': 364, 'zone': 'pixel_zone_3'}},
+    {'id': 11, 'player': 'bob', 'event_type': 'item_found', 'timestamp': '2024-01-12T06:42', 'data': {'level': 12, 'score_delta': -27, 'zone': 'pixel_zone_5'}},
     {'id': 12, 'player': 'frank', 'event_type': 'logout', 'timestamp': '2024-01-18T23:15', 'data': {'level': 11, 'score_delta': 373, 'zone': 'pixel_zone_4'}},
-    {'id': 13, 'player': 'charlie', 'event_type': 'item_found', 'timestamp': '2024-01-23T17:14', 'data': {'level': 44, 'score_delta': 232, 'zone': 'pixel_zone_1'}},
+    {'id': 13, 'player': 'charlie', 'event_type': 'level_up', 'timestamp': '2024-01-23T17:14', 'data': {'level': 44, 'score_delta': 232, 'zone': 'pixel_zone_1'}},
     {'id': 14, 'player': 'bob', 'event_type': 'login', 'timestamp': '2024-01-26T10:25', 'data': {'level': 18, 'score_delta': -33, 'zone': 'pixel_zone_2'}},
     {'id': 15, 'player': 'eve', 'event_type': 'item_found', 'timestamp': '2024-01-11T06:41', 'data': {'level': 32, 'score_delta': 305, 'zone': 'pixel_zone_4'}},
     {'id': 16, 'player': 'bob', 'event_type': 'kill', 'timestamp': '2024-01-05T07:47', 'data': {'level': 36, 'score_delta': 451, 'zone': 'pixel_zone_3'}},
@@ -52,10 +55,174 @@ events = [
 ]
 
 
-def parse_data():
-    for liste in events:
-        yield liste
-        print(liste)
+def trier_evenements(liste):
+    try:
+        liste_triee = sorted(liste, key=lambda x: x['id'])
+        for element in liste_triee:
+            yield element
+    except ValueError:
+        print("Invalid list")
 
 
-parse_data()
+def parse_events(element):
+    try:
+        return next(element)
+    except StopIteration:
+        return None
+
+
+def fibonacci(number):
+    count = 0
+    nombre_a = 0
+    nombre_b = 1
+    result = 0
+    liste = [0, 1]
+    while count < number - 2:
+        result = nombre_a + nombre_b
+        liste.append(result)
+        nombre_a = nombre_b
+        nombre_b = result
+        count += 1
+    return ', '.join(str(n) for n in liste)
+
+
+def nombres_premiers(taille):
+    liste = []
+    nombre = 2
+    while len(liste) < taille:
+        est_premier = True
+        for i in range(2, nombre):
+            if nombre % i == 0:
+                est_premier = False
+                break
+        if est_premier:
+            liste.append(nombre)
+        nombre += 1
+    return ', '.join(str(n) for n in liste)
+
+
+if __name__ == "__main__":
+    print("=== Game Data Stream Processor ===\n")
+    print(f'Processing {len(events)} game events...\n')
+    debut = time.perf_counter()
+
+    try:
+        evenements_exemple = trier_evenements(events)
+        evenements = trier_evenements(events)
+    except Exception as e:
+        print(f"Error sorting events : {e}")
+        exit()
+
+    count_level = 0
+    count_treasure = 0
+    count_levelup = 0
+
+    for i in range(len(events)):
+        try:
+            event = parse_events(evenements)
+            if event is None:
+                print(f"Missing event {i}")
+                continue
+            if event['data']['level'] > 10:
+                count_level += 1
+            if event['event_type'] == 'item_found':
+                count_treasure += 1
+            if event['event_type'] == 'level_up':
+                count_levelup += 1
+        except KeyError as e:
+            print(f"Missing key in the event {i} : {e}")
+        except Exception as e:
+            print(f"Error on the event {i} : {e}")
+
+    for i in range(1, 4):
+        try:
+            event = parse_events(evenements_exemple)
+            if event is None:
+                print(f"Missing event {i}")
+                continue
+            if event['event_type'] == 'kill':
+                event_var = "killed monster"
+            elif event['event_type'] == 'level_up':
+                event_var = "leveled up"
+            elif event['event_type'] == 'item_found':
+                event_var = "found treasure"
+            elif event['event_type'] == 'login':
+                event_var = "is connected"
+            elif event['event_type'] == 'logout':
+                event_var = "is disconnected"
+            elif event['event_type'] == 'death':
+                event_var = "is death"
+            else:
+                event_var = "unknown event"
+            print(f"Event {i}: Player {event['player']} (level {event['data']['level']}) {event_var}")
+        except KeyError as e:
+            print(f"Missing key in the event {i} : {e}")
+        except Exception as e:
+            print(f"Error on the event {i} : {e}")
+
+    fin = time.perf_counter()
+    print("...\n")
+    print("=== Stream Analytics ===\n")
+    print(f'Total events processed: {len(events)}')
+    print(f'High-level players (10+): {count_level}')
+    print(f'Treasure events: {count_treasure}')
+    print(f'Level-up events: {count_levelup}\n')
+    print("Memory usage: Constant (streaming)")
+    print(f'Processing time: {fin - debut:.6f} seconds\n')
+    print("=== Generator Demonstration ===\n")
+
+    try:
+        fib_sequence = fibonacci(10)
+        print(f'Fibonacci sequence (first 10): {fib_sequence}')
+    except Exception as e:
+        print(f"Fibonacci Error : {e}")
+
+    try:
+        print(f'Prime numbers (first 5): {nombres_premiers()}')
+    except Exception as e:
+        print(f"Prime number error : {e}")
+    print("=== Game Data Stream Processor ===\n")
+    print(f'Processing {len(events)} game events...\n')
+    debut = time.perf_counter()
+    evenements_exemple = trier_evenements(events)
+    evenements = trier_evenements(events)
+    count_level = 0
+    count_treasure = 0
+    count_levelup = 0
+    for i in range(len(events)):
+        event = parse_events(evenements)
+        if event['data']['level'] > 10:
+            count_level += 1
+        if event['event_type'] == 'item_found':
+            count_treasure += 1
+        if event['event_type'] == 'level_up':
+            count_levelup += 1
+    for i in range(1, 4):
+        event = parse_events(evenements_exemple)
+        if event['event_type'] == 'kill':
+            event_var = "killed monster"
+        elif event['event_type'] == 'level_up':
+            event_var = "leveled up"
+        elif event['event_type'] == 'item_found':
+            event_var = "found treasure"
+        elif event['event_type'] == 'login':
+            event_var = "is connected"
+        elif event['event_type'] == 'logout':
+            event_var = "is disconnected"
+        elif event['event_type'] == 'death':
+            event_var = "is death"
+        print(f"Event {i}: Player {event['player']}\
+ (level {event['data']['level']}) {event_var}")
+    fin = time.perf_counter()
+    print("...\n")
+    print("=== Stream Analytics ===\n")
+    print(f'Total events processed: {len(events)}')
+    print(f'High-level players (10+): {count_level}')
+    print(f'Treasure events: {count_treasure}')
+    print(f'Level-up events: {count_levelup}\n')
+    print("Memory usage: Constant (streaming)")
+    print(f'Processing time: {fin - debut:.6f} seconds\n')
+    print("=== Generator Demonstration ===\n")
+    fib_sequence = fibonacci(10)
+    print(f'Fibonacci sequence (first 10): {fibonacci(10)}')
+    print(f'Prime numbers (first 10): {nombres_premiers(5)}')
