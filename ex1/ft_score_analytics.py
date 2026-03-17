@@ -12,7 +12,7 @@ if __name__ == "__main__":
             print(f'Scores processed:    {final_list}')
             print(f'Total players:  {len(sys.argv) - 1}')
             print(f'Total score:    {sum(final_list)}')
-            moyenne = format(sum(final_list) / len(final_list), '.2f')
+            moyenne = format(sum(final_list) / len(final_list), '.1f')
             print(f'Average score:  {moyenne}')
             print(f'High score:    {max(final_list)}')
             print(f'Low score:    {min(final_list)}')
